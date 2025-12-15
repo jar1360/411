@@ -1,0 +1,50 @@
+name: SAST - Semgrep
+permissions:
+  contents: read
+  pull-requests: write
+
+  
+on:
+  push:
+    branches: [ main]
+  pull_request:
+  
+jobs: 
+  semgrep:
+    runs-on: ubuntu-latest
+
+#    env:
+#      TARGET_FILE: "."
+    
+    permissions:
+      contents: read 
+      security-events: write # allows uploading SARIF to Security tab
+
+    steps:
+      - name: Checkout repository 
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          
+      - name: Install Semgrep
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep
+        
+      - name: Run Semgrep SAST (OWASP Top 10 rules)
+        continue-on-error: true
+        run: |
+          semgrep \
+              --config p/owasp-top-ten \
+              --sarif --output semgrep-results.sarif 
+  #          \^  "$TARGET_FILE"
+
+      - name: Upload semgrep-results.sarif
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-results-sarif
+          path: semgrep-results.sarif
