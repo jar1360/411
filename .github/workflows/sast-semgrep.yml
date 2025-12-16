@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      TARGET_FILE: "./fastbank-auth-lab"
+      TARGET_FILE: "./canonicalization-example"
     
     permissions:
       contents: read 
